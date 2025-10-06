@@ -1,1 +1,540 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emploi du Temps CM1</title>
+    <style>
+        :root {
+            --primary: #4a6fa5;
+            --secondary: #6b8cbc;
+            --light: #f5f7fa;
+            --accent: #ff9e4a;
+            --text: #333;
+            --border: #e1e5eb;
+            --math: #4a6fa5;
+            --french: #6b8cbc;
+            --science: #5cb85c;
+            --history: #f0ad4e;
+            --art: #d9534f;
+            --sport: #5bc0de;
+            --music: #aa66cc;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light);
+            color: var(--text);
+            line-height: 1.5;
+            padding: 16px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        /* Password Screen Styling */
+        #passwordScreen {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+        }
+        
+        #passwordScreen h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+        
+        #passwordInput {
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            width: 200px;
+            margin-right: 10px;
+        }
+        
+        #submitPassword {
+            padding: 12px 20px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        #submitPassword:hover {
+            background-color: var(--secondary);
+        }
+        
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+        
+        /* Main Content Styling (Hidden by default) */
+        #mainContent {
+            display: none;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border);
+        }
+        
+        h1 {
+            color: var(--primary);
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            color: var(--secondary);
+            font-size: 0.9rem;
+        }
+        
+        .day-selector {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+        
+        .day-btn {
+            flex: 1;
+            padding: 12px 8px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin: 0 4px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 70px;
+            text-align: center;
+        }
+        
+        .day-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .day-btn:first-child {
+            margin-left: 0;
+        }
+        
+        .day-btn:last-child {
+            margin-right: 0;
+        }
+        
+        .current-day {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            padding: 8px;
+            background: var(--accent);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .schedule-overview {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        .period-group {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .period-group:last-child {
+            border-bottom: none;
+        }
+        
+        .period-title {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 12px;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .period-title::before {
+            content: "";
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .morning-title::before {
+            background-color: var(--primary);
+        }
+        
+        .afternoon-title::before {
+            background-color: var(--accent);
+        }
+        
+        .activities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 10px;
+        }
+        
+        .activity-card {
+            background: var(--light);
+            border-radius: 8px;
+            padding: 12px;
+            border-left: 4px solid var(--border);
+            transition: all 0.2s;
+        }
+        
+        .activity-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .activity-time {
+            font-size: 0.75rem;
+            color: var(--secondary);
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+        
+        .activity-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+        
+        .activity-detail {
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 4px;
+        }
+        
+        .category-math { border-left-color: var(--math); }
+        .category-french { border-left-color: var(--french); }
+        .category-science { border-left-color: var(--science); }
+        .category-history { border-left-color: var(--history); }
+        .category-art { border-left-color: var(--art); }
+        .category-sport { border-left-color: var(--sport); }
+        .category-music { border-left-color: var(--music); }
+        
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.8rem;
+            color: #888;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #999;
+        }
+        
+        @media (max-width: 380px) {
+            .day-btn {
+                padding: 10px 5px;
+                font-size: 0.85rem;
+            }
+            
+            .activities-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            #passwordInput {
+                width: 100%;
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Password Screen -->
+    <div id="passwordScreen">
+        <h2>Veuillez entrer le mot de passe</h2>
+        <input type="password" id="passwordInput" placeholder="Mot de passe">
+        <button id="submitPassword">Entrer</button>
+        <p class="error" id="errorMessage"></p>
+    </div>
 
+    <!-- Main Content (Hidden until correct password is entered) -->
+    <div id="mainContent">
+        <header>
+            <h1>Emploi du Temps Scolaire</h1>
+            <p class="subtitle">CM1 - 2025/2026</p>
+        </header>
+        
+        <div class="day-selector">
+            <button class="day-btn" data-day="LUNDI">Lundi</button>
+            <button class="day-btn" data-day="MARDI">Mardi</button>
+            <button class="day-btn" data-day="JEUDI">Jeudi</button>
+            <button class="day-btn" data-day="VENDREDI">Vendredi</button>
+        </div>
+        
+        <div class="current-day">
+            <span id="current-day-name">Aujourd'hui</span>
+        </div>
+        
+        <div class="schedule-overview" id="timetable">
+            <!-- Le contenu de l'emploi du temps sera généré dynamiquement -->
+        </div>
+        
+        <footer>
+            <p>Conçu pour faciliter les conversations sur l'école</p>
+        </footer>
+    </div>
+
+    <script>
+        // Password Protection Logic
+        document.getElementById('submitPassword').addEventListener('click', checkPassword);
+        document.getElementById('passwordInput').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                checkPassword();
+            }
+        });
+
+        function checkPassword() {
+            const correctPassword = "Kazu";  // The password is set here
+            const userPassword = document.getElementById('passwordInput').value;
+            const errorMessage = document.getElementById('errorMessage');
+            const passwordScreen = document.getElementById('passwordScreen');
+            const mainContent = document.getElementById('mainContent');
+
+            if (userPassword === correctPassword) {
+                // Correct password - show main content
+                passwordScreen.style.display = 'none';
+                mainContent.style.display = 'block';
+            } else {
+                // Incorrect password - show error
+                errorMessage.textContent = "Mot de passe incorrect. Veuillez réessayer.";
+            }
+        }
+
+        // CM1 Timetable Data
+        const timetableData = {
+            "LUNDI": [
+                { time: "9h00-9h20", activity: "Jeux / Devoirs", detail: "Activités de détente", category: "category-other" },
+                { time: "9h20-10h20", activity: "Plan de travail / Renforcement", detail: "Français", category: "category-french" },
+                { time: "10h35-10h55", activity: "Écriture flash", detail: "Exercices rapides", category: "category-french" },
+                { time: "10h55-11h55", activity: "Plan de travail / Renforcement", detail: "Mathématiques", category: "category-math" },
+                { time: "13h45-14h00", activity: "Calcul mental", detail: "Pratique quotidienne", category: "category-math" },
+                { time: "14h00-14h40", activity: "Production d'écrit", detail: "Rédaction", category: "category-french" },
+                { time: "14h40-15h15", activity: "Anglais Oral", detail: "Langue vivante", category: "category-other" },
+                { time: "15h30-16h20", activity: "Art visuel", detail: "Expression artistique", category: "category-art" },
+                { time: "16h20-16h35", activity: "Dictée préparation", detail: "Préparation à la dictée", category: "category-french" },
+                { time: "16h35-16h45", activity: "J'ai une question", detail: "Séance de questions", category: "category-other" }
+            ],
+            "MARDI": [
+                { time: "9h00-9h20", activity: "Échecs", detail: "Jeu de stratégie", category: "category-other" },
+                { time: "9h20-10h20", activity: "Plan de travail / Renforcement", detail: "Mathématiques", category: "category-math" },
+                { time: "10h35-10h55", activity: "Dictée préparation", detail: "Préparation à la dictée", category: "category-french" },
+                { time: "10h55-11h55", activity: "Plan de travail / Renforcement", detail: "Français", category: "category-french" },
+                { time: "13h45-14h00", activity: "Calcul mental", detail: "Pratique quotidienne", category: "category-math" },
+                { time: "14h00-14h40", activity: "Bibliothèque / Lecture", detail: "Lecture suivie", category: "category-french" },
+                { time: "14h45-14h55", activity: "Projet informatique", detail: "Numérique", category: "category-other" },
+                { time: "14h55-15h15", activity: "Dictée", detail: "Dictée évaluée", category: "category-french" },
+                { time: "15h15-15h30", activity: "Parcours avenir", detail: "Orientation", category: "category-french" },
+                { time: "15h45-16h45", activity: "EPS", detail: "Éducation physique", category: "category-sport" }
+            ],
+            "JEUDI": [
+                { time: "9h00-9h20", activity: "Énigmes", detail: "Problèmes mathématiques", category: "category-math" },
+                { time: "9h20-10h20", activity: "Plan de travail / Renforcement", detail: "Français", category: "category-french" },
+                { time: "10h35-10h55", activity: "Copie", detail: "Exercices d'écriture", category: "category-french" },
+                { time: "10h55-11h55", activity: "Plan de travail / Renforcement", detail: "Mathématiques", category: "category-math" },
+                { time: "13h45-14h00", activity: "Calcul mental", detail: "Pratique quotidienne", category: "category-math" },
+                { time: "14h00-14h40", activity: "Sciences", detail: "Découverte scientifique", category: "category-science" },
+                { time: "14h00-15h15", activity: "Géographie", detail: "Découverte du monde", category: "category-history" },
+                { time: "15h15-15h30", activity: "Dictée", detail: "Dictée évaluée", category: "category-french" },
+                { time: "15h45-16h45", activity: "EPS", detail: "Éducation physique", category: "category-sport" }
+            ],
+            "VENDREDI": [
+                { time: "9h00-9h20", activity: "Jeux", detail: "Activités de détente", category: "category-other" },
+                { time: "9h20-10h20", activity: "Plan de travail / Renforcement", detail: "Mathématiques", category: "category-math" },
+                { time: "10h35-10h55", activity: "Jeux", detail: "Activités de détente", category: "category-other" },
+                { time: "10h55-11h55", activity: "Plan de travail / Renforcement", detail: "Français", category: "category-french" },
+                { time: "13h45-14h00", activity: "Calcul mental", detail: "Pratique quotidienne", category: "category-math" },
+                { time: "14h00-14h40", activity: "Histoire", detail: "Découverte du passé", category: "category-history" },
+                { time: "14h45-15h15", activity: "Poésie/Musique", detail: "Expression artistique", category: "category-music" },
+                { time: "15h30-16h20", activity: "Lecture suivie", detail: "Compréhension de texte", category: "category-french" },
+                { time: "16h20-16h45", activity: "Musique : chant", detail: "Éducation musicale", category: "category-music" }
+            ]
+        };
+
+        // Get current day in uppercase
+        function getCurrentDayUpperCase() {
+            const days = ['DIMANCHE', 'LUNDI', 'MARDI', 'MERCREDI', 'JEUDI', 'VENDREDI', 'SAMEDI'];
+            const today = new Date().getDay();
+            return days[today];
+        }
+
+        // Display schedule based on selected day
+        function displaySchedule(day) {
+            const scheduleContainer = document.getElementById('timetable');
+            const currentDayName = document.getElementById('current-day-name');
+            
+            // Update current day display
+            const today = getCurrentDayUpperCase();
+            if (day === today) {
+                currentDayName.textContent = "Aujourd'hui";
+            } else {
+                currentDayName.textContent = `Jour sélectionné: ${day.charAt(0).toUpperCase() + day.slice(1).toLowerCase()}`;
+            }
+            
+            // Clear previous content
+            scheduleContainer.innerHTML = '';
+            
+            const activities = timetableData[day] || [];
+            
+            if (activities.length === 0) {
+                scheduleContainer.innerHTML = '<div class="empty-state">Pas de cours ce jour</div>';
+                return;
+            }
+            
+            // Group activities by morning/afternoon
+            const morningActivities = activities.filter(activity => {
+                const hour = parseInt(activity.time.split('h')[0]);
+                return hour < 12;
+            });
+            
+            const afternoonActivities = activities.filter(activity => {
+                const hour = parseInt(activity.time.split('h')[0]);
+                return hour >= 13;
+            });
+            
+            let html = '';
+            
+            // Morning section
+            if (morningActivities.length > 0) {
+                html += `
+                    <div class="period-group">
+                        <div class="period-title morning-title">Matinée</div>
+                        <div class="activities-grid">
+                `;
+                
+                morningActivities.forEach(activity => {
+                    html += `
+                        <div class="activity-card ${activity.category}">
+                            <div class="activity-time">${activity.time}</div>
+                            <div class="activity-name">${activity.activity}</div>
+                            <div class="activity-detail">${activity.detail}</div>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Afternoon section
+            if (afternoonActivities.length > 0) {
+                html += `
+                    <div class="period-group">
+                        <div class="period-title afternoon-title">Après-midi</div>
+                        <div class="activities-grid">
+                `;
+                
+                afternoonActivities.forEach(activity => {
+                    html += `
+                        <div class="activity-card ${activity.category}">
+                            <div class="activity-time">${activity.time}</div>
+                            <div class="activity-name">${activity.activity}</div>
+                            <div class="activity-detail">${activity.detail}</div>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+            
+            scheduleContainer.innerHTML = html;
+        }
+
+        // Set up day selector
+        function setupDaySelector() {
+            const dayButtons = document.querySelectorAll('.day-btn');
+            
+            let selectedDay = 'LUNDI';
+            
+            dayButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    dayButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    selectedDay = this.getAttribute('data-day');
+                    displaySchedule(selectedDay);
+                });
+            });
+            
+            // Set current day as active by default
+            const currentDay = getCurrentDayUpperCase();
+            const currentDayButton = document.querySelector(`.day-btn[data-day="${currentDay}"]`);
+            
+            if (currentDayButton) {
+                currentDayButton.classList.add('active');
+                selectedDay = currentDay;
+            } else {
+                // If no class today (weekend), default to Monday
+                dayButtons[0].classList.add('active');
+                selectedDay = 'LUNDI';
+            }
+            
+            // Display initial schedule
+            displaySchedule(selectedDay);
+        }
+
+        // Initialize the app only after correct password is entered
+        // The setupDaySelector will be called after successful password entry
+        // We need to modify the checkPassword function to initialize the app
+        const originalCheckPassword = checkPassword;
+        checkPassword = function() {
+            const correctPassword = "Kazu";
+            const userPassword = document.getElementById('passwordInput').value;
+            const errorMessage = document.getElementById('errorMessage');
+            const passwordScreen = document.getElementById('passwordScreen');
+            const mainContent = document.getElementById('mainContent');
+
+            if (userPassword === correctPassword) {
+                passwordScreen.style.display = 'none';
+                mainContent.style.display = 'block';
+                setupDaySelector(); // Initialize the timetable app
+            } else {
+                errorMessage.textContent = "Mot de passe incorrect. Veuillez réessayer.";
+            }
+        };
+
+        // Update event listeners to use the new function
+        document.getElementById('submitPassword').addEventListener('click', checkPassword);
+        document.getElementById('passwordInput').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                checkPassword();
+            }
+        });
+    </script>
+</body>
+</html>
